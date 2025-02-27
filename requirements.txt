@@ -1,0 +1,7 @@
+streamlit
+matplotlib
+reportlab
+prophet
+pandas
+arabic-reshaper
+python-bidi
