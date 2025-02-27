@@ -154,8 +154,10 @@ if st.button("توليد الرؤى" if language == "ar" else "Generate Insights
     with st.spinner("جارٍ معالجة طلبك..." if language == "ar" else "Processing your request..."):
         pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
         st.image(pie_chart, caption="نظرة عامة على المشاعر" if language == "ar" else "Sentiment Overview")
-        st.markdown("أعجبك هذا؟ شارك الرابط مع أصدقائك: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/" if language == "ar" else 
-                    "Like this? Share with friends: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/")
+        st.markdown("أعجبك هذا؟ شارك الرابط عبر واتساب، تليجرام، مسنجر، أو ديسكورد: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/" if language == "ar" else 
+                    "Like this? Share via WhatsApp, Telegram, Messenger, or Discord: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/")
+        st.markdown("انضم إلى مجموعتي على تليجرام للتواصل أو الدعم: [https://t.me/+K7W_PUVdbGk4MDRk](https://t.me/+K7W_PUVdbGk4MDRk)" if language == "ar" else 
+                    "Join my Telegram group for support or discussion: [https://t.me/+K7W_PUVdbGk4MDRk](https://t.me/+K7W_PUVdbGk4MDRk)")
         
         if plan == "Premium ($10 - Full Report)":
             if not st.session_state["payment_verified"]:
@@ -176,8 +178,10 @@ if st.button("توليد الرؤى" if language == "ar" else "Generate Insights
                     file_name=f"{keyword}_report.pdf",
                     mime="application/pdf"
                 )
-                st.markdown("احصل على خصم 20% على التقرير القادم عند دعوة 3 أصدقاء! شارك الرابط: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/" if language == "ar" else 
-                            "Get 20% off your next report by inviting 3 friends! Share: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/")
+                st.markdown("احصل على خصم 20% على التقرير القادم عند دعوة 3 أصدقاء عبر واتساب، تليجرام، مسنجر، أو ديسكورد! شارك الرابط: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/" if language == "ar" else 
+                            "Get 20% off your next report by inviting 3 friends via WhatsApp, Telegram, Messenger, or Discord! Share: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/")
+                st.markdown("انضم إلى مجموعتي على تليجرام للتواصل أو الدعم: [https://t.me/+K7W_PUVdbGk4MDRk](https://t.me/+K7W_PUVdbGk4MDRk)" if language == "ar" else 
+                            "Join my Telegram group for support or discussion: [https://t.me/+K7W_PUVdbGk4MDRk](https://t.me/+K7W_PUVdbGk4MDRk)")
         else:
             st.info("ترقية إلى النسخة المميزة ($10) للحصول على التقرير الكامل مع توقعات 30 يومًا!" if language == "ar" else 
                     "Upgrade to Premium ($10) for the full report with 30-day forecast!")
