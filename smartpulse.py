@@ -24,10 +24,10 @@ st.set_page_config(page_title="SmartPulse", page_icon="📊", layout="wide")
 st.title("SmartPulse - World’s Best Data Insights Tool")
 st.markdown("**By Anas Hani Zewail** - Elite analytics at your fingertips. Contact: +201024743503")
 
-# بيانات PayPal Sandbox (استبدلها ببياناتك الحقيقية لاحقًا)
-PAYPAL_CLIENT_ID = "YOUR_SANDBOX_CLIENT_ID"  # من PayPal Dashboard
-PAYPAL_SECRET = "YOUR_SANDBOX_SECRET"        # من PayPal Dashboard
-PAYPAL_API = "https://api-m.sandbox.paypal.com"  # Sandbox API (غيّر إلى api-m.paypal.com للإطلاق الحقيقي)
+# بيانات PayPal Sandbox التي قدمتها
+PAYPAL_CLIENT_ID = "AQd5IZObL6YTejqYpN0LxADLMtqbeal1ahbgNNrDfFLcKzMl6goF9BihgMw2tYnb4suhUfprhI-Z8eoC"
+PAYPAL_SECRET = "EPk46EBw3Xm2W-R0Uua8sLsoDLJytgSXqIzYLbbXCk_zSOkdzFx8jEbKbKxhjf07cnJId8gt6INzm6_V"
+PAYPAL_API = "https://api-m.sandbox.paypal.com"  # Sandbox API (غيّر إلى api-m.paypal.com عند الإطلاق الحقيقي)
 
 # واجهة المستخدم
 keyword = st.text_input("Enter a Keyword (e.g., iPhone 15):", "iPhone 15")
@@ -35,7 +35,7 @@ language = st.selectbox("Select Language:", ["ar", "en"], index=0)
 plan = st.radio("Choose Your Plan:", ["Free (Basic Sentiment)", "Premium ($10 - Full Report)"])
 st.markdown("Free: Sentiment pie chart. Premium: Full report with charts, heatmap, and 30-day forecast.")
 
-# بيانات وهمية للتجربة
+# بيانات وهمية للتجربة (استبدلها بمصادرك الفعلية لاحقًا)
 sentiment = {"positive": {"strong": 30, "mild": 20}, "negative": {"strong": 10, "mild": 15}, "neutral": 25}
 total_posts = 100
 sentiment_by_day = {
@@ -110,7 +110,11 @@ def get_paypal_access_token():
     headers = {"Accept": "application/json", "Accept-Language": "en_US"}
     data = {"grant_type": "client_credentials"}
     response = requests.post(url, headers=headers, auth=(PAYPAL_CLIENT_ID, PAYPAL_SECRET), data=data)
-    return response.json()["access_token"]
+    if response.status_code == 200:
+        return response.json()["access_token"]
+    else:
+        st.error("فشل في الاتصال بـ PayPal. حاول مرة أخرى لاحقًا." if language == "ar" else "Failed to connect to PayPal. Try again later.")
+        return None
 
 # وظيفة لإنشاء طلب دفع
 def create_payment(access_token):
@@ -127,28 +131,36 @@ def create_payment(access_token):
             "description": "SmartPulse Premium Report"
         }],
         "redirect_urls": {
-            "return_url": "https://smartpulse.streamlit.app/success",
-            "cancel_url": "https://smartpulse.streamlit.app/cancel"
+            "return_url": "https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/?success=true",
+            "cancel_url": "https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/?cancel=true"
         }
     }
     response = requests.post(url, headers=headers, json=payment_data)
-    return response.json()["links"][1]["href"]  # رابط الموافقة
+    if response.status_code == 201:
+        for link in response.json()["links"]:
+            if link["rel"] == "approval_url":
+                return link["href"]
+    st.error("فشل في إنشاء طلب الدفع." if language == "ar" else "Failed to create payment request.")
+    return None
+
+# إدارة حالة الدفع
+if "payment_verified" not in st.session_state:
+    st.session_state["payment_verified"] = False
 
 # تشغيل الأداة
-if st.button("Generate Insights"):
+if st.button("توليد الرؤى" if language == "ar" else "Generate Insights"):
     with st.spinner("جارٍ معالجة طلبك..." if language == "ar" else "Processing your request..."):
         pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
         st.image(pie_chart, caption="نظرة عامة على المشاعر" if language == "ar" else "Sentiment Overview")
         
         if plan == "Premium ($10 - Full Report)":
-            if "payment_verified" not in st.session_state:
-                st.session_state["payment_verified"] = False
-            
             if not st.session_state["payment_verified"]:
                 access_token = get_paypal_access_token()
-                approval_url = create_payment(access_token)
-                st.markdown(f"يرجى إتمام الدفع عبر PayPal: [اضغط هنا]({approval_url})" if language == "ar" else f"Please complete payment via PayPal: [Click here]({approval_url})")
-                st.info("بعد الدفع، أعد تحميل الصفحة للحصول على التقرير الكامل." if language == "ar" else "After payment, reload the page to get the full report.")
+                if access_token:
+                    approval_url = create_payment(access_token)
+                    if approval_url:
+                        st.markdown(f"يرجى إتمام الدفع عبر PayPal: [اضغط هنا]({approval_url})" if language == "ar" else f"Please complete payment via PayPal: [Click here]({approval_url})")
+                        st.info("بعد الدفع الناجح، أعد تحميل الصفحة للحصول على التقرير الكامل." if language == "ar" else "After successful payment, reload the page to get the full report.")
             else:
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
                 st.image(forecast_chart, caption="توقعات 30 يومًا" if language == "ar" else "30-Day Forecast")
@@ -164,7 +176,10 @@ if st.button("Generate Insights"):
             st.info("ترقية إلى النسخة المميزة ($10) للحصول على التقرير الكامل مع توقعات 30 يومًا!" if language == "ar" else 
                     "Upgrade to Premium ($10) for the full report with 30-day forecast!")
 
-# التحقق من الدفع (محاكاة بسيطة، يمكن تحسينها بـ PayPal Webhooks)
-if "success" in st.query_params:
+# التحقق من الدفع عبر معلمة URL
+query_params = st.query_params
+if "success" in query_params and query_params["success"] == "true":
     st.session_state["payment_verified"] = True
     st.success("تم الدفع بنجاح! يمكنك الآن تحميل التقرير الكامل." if language == "ar" else "Payment successful! You can now download the full report.")
+elif "cancel" in query_params:
+    st.warning("تم إلغاء الدفع. اختر النسخة المميزة مرة أخرى للمحاولة." if language == "ar" else "Payment canceled. Select Premium again to retry.")
