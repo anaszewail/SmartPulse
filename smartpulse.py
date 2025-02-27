@@ -23,17 +23,19 @@ if not os.path.exists("/tmp/Amiri-Regular.ttf"):
 st.set_page_config(page_title="SmartPulse", page_icon="📊", layout="wide")
 st.title("SmartPulse - World’s Best Data Insights Tool")
 st.markdown("**By Anas Hani Zewail** - Elite analytics at your fingertips. Contact: +201024743503")
+st.markdown('<meta name="description" content="SmartPulse by Anas Hani Zewail - World’s Best Free Data Insights Tool for sentiment analysis and predictive forecasts">', unsafe_allow_html=True)
+st.markdown('<meta name="keywords" content="data analysis, predictive analytics, sentiment analysis, iPhone 15, SEO insights, free tool">', unsafe_allow_html=True)
 
-# بيانات PayPal Sandbox التي قدمتها
+# بيانات PayPal Sandbox
 PAYPAL_CLIENT_ID = "AQd5IZObL6YTejqYpN0LxADLMtqbeal1ahbgNNrDfFLcKzMl6goF9BihgMw2tYnb4suhUfprhI-Z8eoC"
 PAYPAL_SECRET = "EPk46EBw3Xm2W-R0Uua8sLsoDLJytgSXqIzYLbbXCk_zSOkdzFx8jEbKbKxhjf07cnJId8gt6INzm6_V"
-PAYPAL_API = "https://api-m.sandbox.paypal.com"  # Sandbox API (غيّر إلى api-m.paypal.com عند الإطلاق الحقيقي)
+PAYPAL_API = "https://api-m.sandbox.paypal.com"  # Sandbox API (غيّر إلى api-m.paypal.com للإطلاق الحقيقي)
 
 # واجهة المستخدم
 keyword = st.text_input("Enter a Keyword (e.g., iPhone 15):", "iPhone 15")
 language = st.selectbox("Select Language:", ["ar", "en"], index=0)
 plan = st.radio("Choose Your Plan:", ["Free (Basic Sentiment)", "Premium ($10 - Full Report)"])
-st.markdown("Free: Sentiment pie chart. Premium: Full report with charts, heatmap, and 30-day forecast.")
+st.markdown("**Free Version**: Get instant sentiment analysis for any keyword! Share this tool to unlock more insights. **Premium ($10)**: Full report with 30-day forecast and actionable insights.")
 
 # بيانات وهمية للتجربة (استبدلها بمصادرك الفعلية لاحقًا)
 sentiment = {"positive": {"strong": 30, "mild": 20}, "negative": {"strong": 10, "mild": 15}, "neutral": 25}
@@ -152,6 +154,8 @@ if st.button("توليد الرؤى" if language == "ar" else "Generate Insights
     with st.spinner("جارٍ معالجة طلبك..." if language == "ar" else "Processing your request..."):
         pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
         st.image(pie_chart, caption="نظرة عامة على المشاعر" if language == "ar" else "Sentiment Overview")
+        st.markdown("أعجبك هذا؟ شارك الرابط مع أصدقائك: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/" if language == "ar" else 
+                    "Like this? Share with friends: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/")
         
         if plan == "Premium ($10 - Full Report)":
             if not st.session_state["payment_verified"]:
@@ -172,6 +176,8 @@ if st.button("توليد الرؤى" if language == "ar" else "Generate Insights
                     file_name=f"{keyword}_report.pdf",
                     mime="application/pdf"
                 )
+                st.markdown("احصل على خصم 20% على التقرير القادم عند دعوة 3 أصدقاء! شارك الرابط: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/" if language == "ar" else 
+                            "Get 20% off your next report by inviting 3 friends! Share: https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/")
         else:
             st.info("ترقية إلى النسخة المميزة ($10) للحصول على التقرير الكامل مع توقعات 30 يومًا!" if language == "ar" else 
                     "Upgrade to Premium ($10) for the full report with 30-day forecast!")
