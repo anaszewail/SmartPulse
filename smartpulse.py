@@ -206,7 +206,7 @@ if st.button("Generate Insights"):
         
         st.markdown(f"Join our Telegram community for support or discussion: [Click here]({telegram_group})")
         
-        # معالجة الدفع تلقائيًا في نفس الصفحة
+        # معالجة الدفع تلقائيًا في نفس الصفحة مع فتح النافذة
         if plan == "Premium Insights ($10)":
             if not st.session_state["payment_verified"]:
                 if not st.session_state["payment_initiated"]:
@@ -214,9 +214,14 @@ if st.button("Generate Insights"):
                     if access_token:
                         approval_url = create_payment(access_token)
                         if approval_url:
-                            st.markdown(f"Please complete payment via PayPal to unlock full insights: [Click here]({approval_url})")
+                            # فتح نافذة الدفع تلقائيًا باستخدام JavaScript
+                            st.markdown(f"""
+                                <script>
+                                    window.open('{approval_url}', '_blank');
+                                </script>
+                            """, unsafe_allow_html=True)
                             st.session_state["payment_initiated"] = True
-                            st.info("After successful payment, your premium insights will unlock automatically on this page.")
+                            st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly on this page.")
             else:
                 # توليد التقرير تلقائيًا بعد الدفع
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
