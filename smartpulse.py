@@ -19,15 +19,15 @@ import json
 if not os.path.exists("/tmp/Amiri-Regular.ttf"):
     os.system("wget https://github.com/alef.type/amiri/raw/master/Amiri-Regular.ttf -O /tmp/Amiri-Regular.ttf")
 
-# إعداد الصفحة مع تصميم عالمي المستوى
-st.set_page_config(page_title="SmartPulse - Global Insights Leader", page_icon="🌍", layout="wide")
+# إعداد الصفحة مع تصميم مذهل
+st.set_page_config(page_title="SmartPulse - رائد الرؤى العالمية", page_icon="🌍", layout="wide")
 st.markdown("""
     <style>
-    .main {background: linear-gradient(135deg, #1E3A8A, #60A5FA); color: #FFFFFF; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
-    .stButton>button {background: #FFD700; color: #1E3A8A; border-radius: 15px; font-weight: bold; padding: 15px 30px; transition: all 0.3s ease;}
-    .stButton>button:hover {background: #F59E0B; transform: scale(1.05); box-shadow: 0 2px 10px rgba(0,0,0,0.3);}
-    .stTextInput>label, .stSelectbox>label, .stRadio>label {color: #FFD700; font-size: 22px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
-    .stMarkdown {color: #FFFFFF; font-size: 18px;}
+    .main {background: linear-gradient(135deg, #1E3A8A, #60A5FA); color: #FFFFFF; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);}
+    .stButton>button {background: #FFD700; color: #1E3A8A; border-radius: 15px; font-weight: bold; padding: 15px 30px; transition: all 0.3s ease; border: 2px solid #F59E0B;}
+    .stButton>button:hover {background: #F59E0B; transform: scale(1.05); box-shadow: 0 2px 15px rgba(255,215,0,0.5);}
+    .stTextInput>label, .stSelectbox>label, .stRadio>label {color: #FFD700; font-size: 24px; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);}
+    .stMarkdown {color: #FFFFFF; font-size: 18px; line-height: 1.6;}
     .share-btn {background: #34C759; color: white; border-radius: 10px; padding: 10px 20px; text-decoration: none; transition: all 0.3s ease;}
     .share-btn:hover {background: #2DA44E; transform: scale(1.03);}
     .stSpinner>div {border-color: #FFD700 transparent #FFD700 transparent;}
@@ -35,24 +35,28 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # العنوان والوصف
-st.title("SmartPulse - Global Leader in Data Insights")
-st.markdown("**Designed by Anas Hani Zewail** - Unleash the power of elite analytics instantly. Contact: +201024743503")
-st.markdown('<meta name="description" content="SmartPulse by Anas Hani Zewail - The world’s leading free data insights tool with premium predictive analytics for unmatched intelligence">', unsafe_allow_html=True)
-st.markdown('<meta name="keywords" content="data analytics, predictive insights, sentiment analysis, free data tool, iPhone insights, SEO mastery">', unsafe_allow_html=True)
+st.title("SmartPulse - رائد الرؤى العالمية" if language == "Arabic" else "SmartPulse - Global Insights Leader")
+st.markdown("**من تصميم أنس هانئ زويل** - اكتشف قوة التحليلات المتطورة فورًا. تواصل: +201024743503" if language == "Arabic" else 
+            "**Crafted by Anas Hani Zewail** - Unleash cutting-edge analytics instantly. Contact: +201024743503")
+st.markdown('<meta name="description" content="SmartPulse by Anas Hani Zewail - The world’s premier free insights tool with premium predictive analytics for unparalleled success">', unsafe_allow_html=True)
+st.markdown('<meta name="keywords" content="data analytics, predictive insights, sentiment analysis, free data tool, iPhone trends, SEO mastery">', unsafe_allow_html=True)
 
 # بيانات PayPal Sandbox
 PAYPAL_CLIENT_ID = "AQd5IZObL6YTejqYpN0LxADLMtqbeal1ahbgNNrDfFLcKzMl6goF9BihgMw2tYnb4suhUfprhI-Z8eoC"
 PAYPAL_SECRET = "EPk46EBw3Xm2W-R0Uua8sLsoDLJytgSXqIzYLbbXCk_zSOkdzFx8jEbKbKxhjf07cnJId8gt6INzm6_V"
-PAYPAL_API = "https://api-m.sandbox.paypal.com"
+PAYPAL_API = "https://api-m.sandbox.paypal.com"  # Sandbox API (غيّر إلى api-m.paypal.com للإطلاق الحقيقي)
 
 # واجهة المستخدم
-st.subheader("Master Any Topic with Cutting-Edge Insights")
-keyword = st.text_input("Enter Your Topic (e.g., iPhone 15):", "iPhone 15", help="Type any keyword to dive into its data universe!")
-language = st.selectbox("Select Language:", ["Arabic", "English"], index=0)
-plan = st.radio("Choose Your Experience:", ["Free Insights", "Premium Insights ($10)"])
+st.subheader("تحكم في عالم البيانات بسهولة" if language == "Arabic" else "Master Your Data Universe")
+keyword = st.text_input("أدخل موضوعك (مثل iPhone 15):" if language == "Arabic" else "Enter Your Topic (e.g., iPhone 15):", "iPhone 15", help="اكتشف أي موضوع في ثوانٍ!" if language == "Arabic" else "Analyze any topic in seconds!")
+language = st.selectbox("اختر اللغة:" if language == "Arabic" else "Select Language:", ["Arabic", "English"], index=0)
+plan = st.radio("اختر تجربتك:" if language == "Arabic" else "Choose Your Experience:", ["رؤى مجانية" if language == "Arabic" else "Free Insights", "رؤى مميزة ($10)" if language == "Arabic" else "Premium Insights ($10)"])
 st.markdown("""
-**Free Insights**: Get a breathtaking sentiment chart instantly – share the brilliance!  
-**Premium Insights ($10)**: Unlock a 30-day forecast, actionable strategies, and a premium PDF report in seconds.
+**رؤى مجانية**: احصل على رسم بياني مذهل فورًا - شارك الإبداع!  
+**رؤى مميزة ($10)**: افتح توقعات 30 يومًا، استراتيجيات عملية، وتقرير PDF فاخر في ثوانٍ.
+""" if language == "Arabic" else """
+**Free Insights**: Get a stunning chart instantly – share the brilliance!  
+**Premium Insights ($10)**: Unlock 30-day forecasts, actionable strategies, and a premium PDF report in seconds.
 """, unsafe_allow_html=True)
 
 # بيانات وهمية (استبدلها بمصادرك الفعلية)
@@ -74,7 +78,7 @@ def generate_pie_chart(keyword, language, sentiment, total_posts):
     plt.figure(figsize=(8, 6))
     wedges, texts, autotexts = plt.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90, shadow=True, textprops={'fontsize': 14, 'color': 'white'})
     for w in wedges:
-        w.set_edgecolor('#1E3A8A')
+        w.set_edgecolor('#FFD700')
         w.set_linewidth(2)
     plt.title(f"{keyword} Sentiment Analysis" if language == "English" else f"تحليل مشاعر {keyword}", fontsize=18, color="white", pad=20)
     plt.gca().set_facecolor('#1E3A8A')
@@ -204,7 +208,7 @@ if st.button("اكتشف الرؤى الآن" if language == "Arabic" else "Unlo
         st.markdown(f"انضم إلى مجتمعنا على تليجرام للدعم أو النقاش: [اضغط هنا]({telegram_group})" if language == "Arabic" else 
                     f"Join our Telegram community for support or discussion: [Click here]({telegram_group})")
         
-        if plan == "Premium Insights ($10)":
+        if plan == "رؤى مميزة ($10)" if language == "Arabic" else "Premium Insights ($10)":
             if not st.session_state["payment_verified"]:
                 access_token = get_paypal_access_token()
                 if access_token:
@@ -240,3 +244,8 @@ if "success" in query_params and query_params["success"] == "true":
     st.success("تم الدفع بنجاح! استمتع برؤاك المميزة الآن." if language == "Arabic" else "Payment successful! Enjoy your premium insights now.")
 elif "cancel" in query_params:
     st.warning("تم إلغاء الدفع. اختر النسخة المميزة مرة أخرى للمحاولة." if language == "Arabic" else "Payment canceled. Retry Premium for full access.")
+
+# إضافة تعليقات تفاعلية في الأسفل
+st.markdown("---")
+st.markdown("هل لديك أسئلة أو اقتراحات؟ تواصل معنا عبر تليجرام أو رقم الواتساب!" if language == "Arabic" else 
+            "Have questions or suggestions? Reach out via Telegram or WhatsApp!")
