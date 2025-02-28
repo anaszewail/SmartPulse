@@ -42,8 +42,8 @@ if "payment_initiated" not in st.session_state:
     st.session_state["payment_initiated"] = False
 if "report_generated" not in st.session_state:
     st.session_state["report_generated"] = False
-if "payment_key" not in st.session_state:
-    st.session_state["payment_key"] = str(uuid.uuid4())  # مفتاح فريد لكل عملية دفع
+if "payment_url" not in st.session_state:
+    st.session_state["payment_url"] = None
 
 # العنوان والوصف بالإنجليزية
 st.title("SmartPulse - Global Insights Leader")
@@ -54,7 +54,7 @@ st.markdown('<meta name="keywords" content="data analytics, predictive insights,
 # بيانات PayPal Sandbox
 PAYPAL_CLIENT_ID = "AQd5IZObL6YTejqYpN0LxADLMtqbeal1ahbgNNrDfFLcKzMl6goF9BihgMw2tYnb4suhUfprhI-Z8eoC"
 PAYPAL_SECRET = "EPk46EBw3Xm2W-R0Uua8sLsoDLJytgSXqIzYLbbXCk_zSOkdzFx8jEbKbKxhjf07cnJId8gt6INzm6_V"
-PAYPAL_API = "https://api-m.sandbox.paypal.com"  # Sandbox API (غيّر إلى api-m.paypal.com للإطلاق الحقيقي)
+PAYPAL_API = "https://api-m.sandbox.paypal.com"
 
 # واجهة المستخدم بالإنجليزية
 st.subheader("Master Your Data with Ease")
@@ -64,7 +64,7 @@ st.session_state["language"] = language
 plan = st.radio("Choose Your Plan:", ["Free Insights", "Premium Insights ($10)"])
 st.markdown("""
 **Free Insights**: Get a stunning chart instantly – share the excellence!  
-**Premium Insights ($10)**: Unlock 30-day forecasts, smart strategies, and a premium PDF report in moments.
+**Premium Insights ($10)**: Unlock 30-day forecasts, smart strategies, and a premium PDF report in moments – payment opens automatically!
 """, unsafe_allow_html=True)
 
 # بيانات وهمية (استبدلها بمصادرك الفعلية)
@@ -215,15 +215,12 @@ if st.button("Generate Insights"):
                 if access_token:
                     approval_url = create_payment(access_token)
                     if approval_url:
-                        # زر مخفي يتم تنشيطه تلقائيًا لفتح نافذة الدفع
-                        st.markdown(f"""
-                            <button id="paypal-btn" style="display:none;" onclick="window.open('{approval_url}', '_blank')">Open PayPal</button>
-                            <script>document.getElementById('paypal-btn').click();</script>
-                        """, unsafe_allow_html=True)
+                        st.session_state["payment_url"] = approval_url
                         st.session_state["payment_initiated"] = True
+                        # استخدام st.link_button لفتح النافذة تلقائيًا مع مفتاح فريد
+                        st.link_button("Opening PayPal Payment...", url=approval_url, key=f"paypal_{uuid.uuid4()}", help="Payment window opened automatically!")
                         st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly!")
             elif st.session_state["payment_verified"]:
-                # توليد التقرير تلقائيًا بعد الدفع
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
                 st.image(forecast_chart, caption="30-Day Forecast")
                 st.write(reco)
@@ -244,7 +241,7 @@ if st.button("Generate Insights"):
 query_params = st.query_params
 if "success" in query_params and query_params["success"] == "true" and not st.session_state["payment_verified"]:
     st.session_state["payment_verified"] = True
-    st.session_state["payment_initiated"] = False  # إعادة تعيين للسماح بطلب دفع جديد إذا لزم الأمر
+    st.session_state["payment_initiated"] = False
     st.success("Payment successful! Your premium insights are now unlocked.")
 elif "cancel" in query_params:
     st.session_state["payment_initiated"] = False
