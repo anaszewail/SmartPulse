@@ -17,7 +17,7 @@ from prophet import Prophet
 if not os.path.exists("/tmp/Amiri-Regular.ttf"):
     os.system("wget https://github.com/alef.type/amiri/raw/master/Amiri-Regular.ttf -O /tmp/Amiri-Regular.ttf")
 
-# إعداد الصفحة بتصميم مثالي
+# إعداد الصفحة بتصميم فاخر
 st.set_page_config(page_title="SmartPulse - Ultimate Data Insights", page_icon="🌍", layout="wide")
 st.markdown("""
     <style>
@@ -32,9 +32,15 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# تعريف اللغة افتراضيًا
+# تعريف الحالة الافتراضية
 if "language" not in st.session_state:
     st.session_state["language"] = "English"
+if "payment_verified" not in st.session_state:
+    st.session_state["payment_verified"] = False
+if "payment_initiated" not in st.session_state:
+    st.session_state["payment_initiated"] = False
+if "report_generated" not in st.session_state:
+    st.session_state["report_generated"] = False
 
 # العنوان والوصف بالإنجليزية
 st.title("SmartPulse - Global Insights Leader")
@@ -176,15 +182,13 @@ def create_payment(access_token):
     st.error("Failed to create payment request.")
     return None
 
-# إدارة حالة الدفع
-if "payment_verified" not in st.session_state:
-    st.session_state["payment_verified"] = False
-
-# تشغيل الأداة
-if st.button("Unlock Insights Now"):
+# تشغيل الأداة تلقائيًا
+if st.button("Generate Insights"):
     with st.spinner("Processing your request..."):
+        # توليد الرسم الدائري تلقائيًا
         pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
         st.image(pie_chart, caption="Sentiment Overview")
+        
         share_url = "https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/"
         telegram_group = "https://t.me/+K7W_PUVdbGk4MDRk"
         
@@ -202,15 +206,19 @@ if st.button("Unlock Insights Now"):
         
         st.markdown(f"Join our Telegram community for support or discussion: [Click here]({telegram_group})")
         
+        # معالجة الدفع تلقائيًا في نفس الصفحة
         if plan == "Premium Insights ($10)":
             if not st.session_state["payment_verified"]:
-                access_token = get_paypal_access_token()
-                if access_token:
-                    approval_url = create_payment(access_token)
-                    if approval_url:
-                        st.markdown(f"Please complete payment via PayPal to unlock full insights: [Click here]({approval_url})")
-                        st.info("After successful payment, reload the page to enjoy premium insights.")
+                if not st.session_state["payment_initiated"]:
+                    access_token = get_paypal_access_token()
+                    if access_token:
+                        approval_url = create_payment(access_token)
+                        if approval_url:
+                            st.markdown(f"Please complete payment via PayPal to unlock full insights: [Click here]({approval_url})")
+                            st.session_state["payment_initiated"] = True
+                            st.info("After successful payment, your premium insights will unlock automatically on this page.")
             else:
+                # توليد التقرير تلقائيًا بعد الدفع
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
                 st.image(forecast_chart, caption="30-Day Forecast")
                 st.write(reco)
@@ -221,15 +229,17 @@ if st.button("Unlock Insights Now"):
                     file_name=f"{keyword}_smartpulse_report.pdf",
                     mime="application/pdf"
                 )
+                st.session_state["report_generated"] = True
                 st.markdown(f"Earn a FREE report! Invite 5 friends via WhatsApp, Telegram, Messenger, or Discord: [Share Now]({share_url})")
                 st.markdown(f"Join our Telegram community: [Click here]({telegram_group})")
         else:
             st.info("Upgrade to Premium ($10) for 30-day forecasts and comprehensive insights!")
 
-# التحقق من الدفع
+# التحقق من الدفع تلقائيًا
 query_params = st.query_params
-if "success" in query_params and query_params["success"] == "true":
+if "success" in query_params and query_params["success"] == "true" and not st.session_state["payment_verified"]:
     st.session_state["payment_verified"] = True
-    st.success("Payment successful! Enjoy your premium insights now.")
+    st.success("Payment successful! Your premium insights are now unlocked.")
 elif "cancel" in query_params:
+    st.session_state["payment_initiated"] = False
     st.warning("Payment canceled. Retry Premium for full access.")
