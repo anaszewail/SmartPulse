@@ -30,6 +30,8 @@ st.markdown("""
     .share-btn {background: #34C759; color: white; border-radius: 12px; padding: 12px 25px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(52,199,89,0.3);}
     .share-btn:hover {background: #2DA44E; transform: scale(1.05); box-shadow: 0 4px 15px rgba(52,199,89,0.5);}
     .stSpinner>div {border-color: #FFD700 transparent #FFD700 transparent;}
+    .buy-premium-btn {background: #FF4500; color: #FFFFFF; border-radius: 25px; font-weight: bold; padding: 20px 50px; font-size: 24px; transition: all 0.3s ease; border: 3px solid #FF8C00; box-shadow: 0 4px 15px rgba(255,69,0,0.4); text-align: center;}
+    .buy-premium-btn:hover {background: #FF8C00; transform: scale(1.1); box-shadow: 0 6px 25px rgba(255,140,0,0.6);}
     </style>
 """, unsafe_allow_html=True)
 
@@ -44,6 +46,9 @@ if "report_generated" not in st.session_state:
     st.session_state["report_generated"] = False
 if "payment_url" not in st.session_state:
     st.session_state["payment_url"] = None
+
+# زر كبير في الأعلى
+st.markdown('<button class="buy-premium-btn">Buy Premium Insights Now</button>', unsafe_allow_html=True)
 
 # العنوان والوصف بالإنجليزية
 st.title("SmartPulse - Global Insights Leader")
@@ -64,7 +69,7 @@ st.session_state["language"] = language
 plan = st.radio("Choose Your Plan:", ["Free Insights", "Premium Insights ($10)"])
 st.markdown("""
 **Free Insights**: Get a stunning chart instantly – share the excellence!  
-**Premium Insights ($10)**: Unlock 30-day forecasts, smart strategies, and a premium PDF report in moments – payment opens automatically!
+**Premium Insights ($10)**: Unlock 30-day forecasts, smart strategies, and a premium PDF report – payment opens automatically!
 """, unsafe_allow_html=True)
 
 # بيانات وهمية (استبدلها بمصادرك الفعلية)
@@ -217,8 +222,8 @@ if st.button("Generate Insights"):
                     if approval_url:
                         st.session_state["payment_url"] = approval_url
                         st.session_state["payment_initiated"] = True
-                        # استخدام st.link_button لفتح النافذة تلقائيًا مع مفتاح فريد
-                        st.link_button("Opening PayPal Payment...", url=approval_url, key=f"paypal_{uuid.uuid4()}", help="Payment window opened automatically!")
+                        # عرض زر كبير تلقائيًا مع فتح النافذة
+                        st.button("Buy Premium Insights Now", key=f"paypal_{uuid.uuid4()}", on_click=lambda: st.markdown(f'<meta http-equiv="refresh" content="0;url={approval_url}">', unsafe_allow_html=True))
                         st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly!")
             elif st.session_state["payment_verified"]:
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
@@ -236,6 +241,9 @@ if st.button("Generate Insights"):
                 st.markdown(f"Join our Telegram community: [Click here]({telegram_group})")
         else:
             st.info("Upgrade to Premium ($10) for 30-day forecasts and comprehensive insights!")
+
+# زر كبير في الأسفل
+st.markdown('<button class="buy-premium-btn">Buy Premium Insights Now</button>', unsafe_allow_html=True)
 
 # التحقق من الدفع تلقائيًا
 query_params = st.query_params
