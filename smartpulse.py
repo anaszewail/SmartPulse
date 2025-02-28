@@ -225,8 +225,14 @@ if st.button("Generate Insights", key="generate_insights"):
                     if approval_url:
                         st.session_state["payment_url"] = approval_url
                         st.session_state["payment_initiated"] = True
-                        st.markdown(f'<a href="{approval_url}" target="_blank" class="buy-premium-btn">Buy Premium Insights Now</a>', unsafe_allow_html=True)
-                        st.info("Click 'Buy Premium Insights Now' above or below to proceed with payment and unlock premium insights instantly!")
+                        # فتح نافذة الدفع تلقائيًا باستخدام JavaScript
+                        st.markdown(f"""
+                            <a href="{approval_url}" target="_blank" id="paypal_link" style="display:none;">Open PayPal</a>
+                            <script>
+                                document.getElementById("paypal_link").click();
+                            </script>
+                        """, unsafe_allow_html=True)
+                        st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly!")
             elif st.session_state["payment_verified"]:
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
                 st.image(forecast_chart, caption="30-Day Forecast")
