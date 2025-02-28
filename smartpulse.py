@@ -30,7 +30,7 @@ st.markdown("""
     .share-btn {background: #34C759; color: white; border-radius: 12px; padding: 12px 25px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(52,199,89,0.3);}
     .share-btn:hover {background: #2DA44E; transform: scale(1.05); box-shadow: 0 4px 15px rgba(52,199,89,0.5);}
     .stSpinner>div {border-color: #FFD700 transparent #FFD700 transparent;}
-    .buy-premium-btn {background: #FF4500; color: #FFFFFF; border-radius: 25px; font-weight: bold; padding: 20px 50px; font-size: 24px; transition: all 0.3s ease; border: 3px solid #FF8C00; box-shadow: 0 4px 15px rgba(255,69,0,0.4); text-align: center;}
+    .buy-premium-btn {background: #FF4500; color: #FFFFFF; border-radius: 25px; font-weight: bold; padding: 20px 50px; font-size: 24px; transition: all 0.3s ease; border: 3px solid #FF8C00; box-shadow: 0 4px 15px rgba(255,69,0,0.4); text-align: center; display: block; width: 100%; text-decoration: none;}
     .buy-premium-btn:hover {background: #FF8C00; transform: scale(1.1); box-shadow: 0 6px 25px rgba(255,140,0,0.6);}
     </style>
 """, unsafe_allow_html=True)
@@ -48,7 +48,10 @@ if "payment_url" not in st.session_state:
     st.session_state["payment_url"] = None
 
 # زر كبير في الأعلى
-st.markdown('<button class="buy-premium-btn">Buy Premium Insights Now</button>', unsafe_allow_html=True)
+if st.session_state["payment_url"]:
+    st.markdown(f'<a href="{st.session_state["payment_url"]}" target="_blank" class="buy-premium-btn">Buy Premium Insights Now</a>', unsafe_allow_html=True)
+else:
+    st.markdown('<a href="#" class="buy-premium-btn">Buy Premium Insights Now</a>', unsafe_allow_html=True)
 
 # العنوان والوصف بالإنجليزية
 st.title("SmartPulse - Global Insights Leader")
@@ -63,10 +66,10 @@ PAYPAL_API = "https://api-m.sandbox.paypal.com"
 
 # واجهة المستخدم بالإنجليزية
 st.subheader("Master Your Data with Ease")
-keyword = st.text_input("Enter Your Topic (e.g., iPhone 15):", "iPhone 15", help="Analyze any topic in seconds!")
-language = st.selectbox("Select Language:", ["English", "Arabic"], index=0)
+keyword = st.text_input("Enter Your Topic (e.g., iPhone 15):", "iPhone 15", key="keyword_input", help="Analyze any topic in seconds!")
+language = st.selectbox("Select Language:", ["English", "Arabic"], index=0, key="language_select")
 st.session_state["language"] = language
-plan = st.radio("Choose Your Plan:", ["Free Insights", "Premium Insights ($10)"])
+plan = st.radio("Choose Your Plan:", ["Free Insights", "Premium Insights ($10)"], key="plan_radio")
 st.markdown("""
 **Free Insights**: Get a stunning chart instantly – share the excellence!  
 **Premium Insights ($10)**: Unlock 30-day forecasts, smart strategies, and a premium PDF report – payment opens automatically!
@@ -191,7 +194,7 @@ def create_payment(access_token):
     return None
 
 # تشغيل الأداة تلقائيًا
-if st.button("Generate Insights"):
+if st.button("Generate Insights", key="generate_insights"):
     with st.spinner("Processing your request..."):
         pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
         st.image(pie_chart, caption="Sentiment Overview")
@@ -222,9 +225,8 @@ if st.button("Generate Insights"):
                     if approval_url:
                         st.session_state["payment_url"] = approval_url
                         st.session_state["payment_initiated"] = True
-                        # عرض زر كبير تلقائيًا مع فتح النافذة
-                        st.button("Buy Premium Insights Now", key=f"paypal_{uuid.uuid4()}", on_click=lambda: st.markdown(f'<meta http-equiv="refresh" content="0;url={approval_url}">', unsafe_allow_html=True))
-                        st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly!")
+                        st.markdown(f'<a href="{approval_url}" target="_blank" class="buy-premium-btn">Buy Premium Insights Now</a>', unsafe_allow_html=True)
+                        st.info("Click 'Buy Premium Insights Now' above or below to proceed with payment and unlock premium insights instantly!")
             elif st.session_state["payment_verified"]:
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
                 st.image(forecast_chart, caption="30-Day Forecast")
@@ -234,7 +236,8 @@ if st.button("Generate Insights"):
                     label="Download Full Report (PDF)",
                     data=pdf_data,
                     file_name=f"{keyword}_smartpulse_report.pdf",
-                    mime="application/pdf"
+                    mime="application/pdf",
+                    key="download_report"
                 )
                 st.session_state["report_generated"] = True
                 st.markdown(f"Earn a FREE report! Invite 5 friends via WhatsApp, Telegram, Messenger, or Discord: [Share Now]({share_url})")
@@ -243,7 +246,10 @@ if st.button("Generate Insights"):
             st.info("Upgrade to Premium ($10) for 30-day forecasts and comprehensive insights!")
 
 # زر كبير في الأسفل
-st.markdown('<button class="buy-premium-btn">Buy Premium Insights Now</button>', unsafe_allow_html=True)
+if st.session_state["payment_url"]:
+    st.markdown(f'<a href="{st.session_state["payment_url"]}" target="_blank" class="buy-premium-btn">Buy Premium Insights Now</a>', unsafe_allow_html=True)
+else:
+    st.markdown('<a href="#" class="buy-premium-btn">Buy Premium Insights Now</a>', unsafe_allow_html=True)
 
 # التحقق من الدفع تلقائيًا
 query_params = st.query_params
