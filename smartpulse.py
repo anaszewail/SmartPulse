@@ -19,8 +19,8 @@ import json
 if not os.path.exists("/tmp/Amiri-Regular.ttf"):
     os.system("wget https://github.com/alef.type/amiri/raw/master/Amiri-Regular.ttf -O /tmp/Amiri-Regular.ttf")
 
-# إعداد الصفحة مع تصميم مذهل
-st.set_page_config(page_title="SmartPulse - رائد الرؤى العالمية", page_icon="🌍", layout="wide")
+# إعداد الصفحة مع تصميم عالمي المستوى
+st.set_page_config(page_title="SmartPulse - Global Insights Leader", page_icon="🌍", layout="wide")
 st.markdown("""
     <style>
     .main {background: linear-gradient(135deg, #1E3A8A, #60A5FA); color: #FFFFFF; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);}
@@ -34,9 +34,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# تعريف اللغة بشكل افتراضي لتجنب الخطأ
+if "language" not in st.session_state:
+    st.session_state["language"] = "Arabic"
+
 # العنوان والوصف
-st.title("SmartPulse - رائد الرؤى العالمية" if language == "Arabic" else "SmartPulse - Global Insights Leader")
-st.markdown("**من تصميم أنس هانئ زويل** - اكتشف قوة التحليلات المتطورة فورًا. تواصل: +201024743503" if language == "Arabic" else 
+st.title("SmartPulse - رائد الرؤى العالمية" if st.session_state["language"] == "Arabic" else "SmartPulse - Global Insights Leader")
+st.markdown("**من تصميم أنس هانئ زويل** - اكتشف قوة التحليلات المتطورة فورًا. تواصل: +201024743503" if st.session_state["language"] == "Arabic" else 
             "**Crafted by Anas Hani Zewail** - Unleash cutting-edge analytics instantly. Contact: +201024743503")
 st.markdown('<meta name="description" content="SmartPulse by Anas Hani Zewail - The world’s premier free insights tool with premium predictive analytics for unparalleled success">', unsafe_allow_html=True)
 st.markdown('<meta name="keywords" content="data analytics, predictive insights, sentiment analysis, free data tool, iPhone trends, SEO mastery">', unsafe_allow_html=True)
@@ -47,14 +51,15 @@ PAYPAL_SECRET = "EPk46EBw3Xm2W-R0Uua8sLsoDLJytgSXqIzYLbbXCk_zSOkdzFx8jEbKbKxhjf0
 PAYPAL_API = "https://api-m.sandbox.paypal.com"  # Sandbox API (غيّر إلى api-m.paypal.com للإطلاق الحقيقي)
 
 # واجهة المستخدم
-st.subheader("تحكم في عالم البيانات بسهولة" if language == "Arabic" else "Master Your Data Universe")
-keyword = st.text_input("أدخل موضوعك (مثل iPhone 15):" if language == "Arabic" else "Enter Your Topic (e.g., iPhone 15):", "iPhone 15", help="اكتشف أي موضوع في ثوانٍ!" if language == "Arabic" else "Analyze any topic in seconds!")
-language = st.selectbox("اختر اللغة:" if language == "Arabic" else "Select Language:", ["Arabic", "English"], index=0)
-plan = st.radio("اختر تجربتك:" if language == "Arabic" else "Choose Your Experience:", ["رؤى مجانية" if language == "Arabic" else "Free Insights", "رؤى مميزة ($10)" if language == "Arabic" else "Premium Insights ($10)"])
+st.subheader("تحكم في عالم البيانات بسهولة" if st.session_state["language"] == "Arabic" else "Master Your Data Universe")
+keyword = st.text_input("أدخل موضوعك (مثل iPhone 15):" if st.session_state["language"] == "Arabic" else "Enter Your Topic (e.g., iPhone 15):", "iPhone 15", help="اكتشف أي موضوع في ثوانٍ!" if st.session_state["language"] == "Arabic" else "Analyze any topic in seconds!")
+language = st.selectbox("اختر اللغة:" if st.session_state["language"] == "Arabic" else "Select Language:", ["Arabic", "English"], index=0)
+st.session_state["language"] = language  # تحديث اللغة بناءً على اختيار المستخدم
+plan = st.radio("اختر تجربتك:" if st.session_state["language"] == "Arabic" else "Choose Your Experience:", ["رؤى مجانية" if st.session_state["language"] == "Arabic" else "Free Insights", "رؤى مميزة ($10)" if st.session_state["language"] == "Arabic" else "Premium Insights ($10)"])
 st.markdown("""
 **رؤى مجانية**: احصل على رسم بياني مذهل فورًا - شارك الإبداع!  
 **رؤى مميزة ($10)**: افتح توقعات 30 يومًا، استراتيجيات عملية، وتقرير PDF فاخر في ثوانٍ.
-""" if language == "Arabic" else """
+""" if st.session_state["language"] == "Arabic" else """
 **Free Insights**: Get a stunning chart instantly – share the brilliance!  
 **Premium Insights ($10)**: Unlock 30-day forecasts, actionable strategies, and a premium PDF report in seconds.
 """, unsafe_allow_html=True)
@@ -177,75 +182,66 @@ def create_payment(access_token):
     st.error("فشل في إنشاء طلب الدفع." if language == "Arabic" else "Failed to create payment request.")
     return None
 
-# إدارة حالة الدفع
-if "payment_verified" not in st.session_state:
-    st.session_state["payment_verified"] = False
-
 # تشغيل الأداة
-if st.button("اكتشف الرؤى الآن" if language == "Arabic" else "Unlock Insights Now"):
-    with st.spinner("جارٍ معالجة طلبك..." if language == "Arabic" else "Processing your request..."):
+if st.button("اكتشف الرؤى الآن" if st.session_state["language"] == "Arabic" else "Unlock Insights Now"):
+    with st.spinner("جارٍ معالجة طلبك..." if st.session_state["language"] == "Arabic" else "Processing your request..."):
         pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
-        st.image(pie_chart, caption="نظرة عامة على المشاعر" if language == "Arabic" else "Sentiment Overview")
+        st.image(pie_chart, caption="نظرة عامة على المشاعر" if st.session_state["language"] == "Arabic" else "Sentiment Overview")
         share_url = "https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/"
         telegram_group = "https://t.me/+K7W_PUVdbGk4MDRk"
         
         # أزرار مشاركة تفاعلية
-        st.markdown("أعجبك هذا؟ شارك الإبداع مع العالم!" if language == "Arabic" else "Love this? Share the brilliance with the world!")
+        st.markdown("أعجبك هذا؟ شارك الإبداع مع العالم!" if st.session_state["language"] == "Arabic" else "Love this? Share the brilliance with the world!")
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.markdown(f'<a href="https://api.whatsapp.com/send?text=جرب%20SmartPulse%20الرائع:%20{share_url}" target="_blank" class="share-btn">واتساب</a>' if language == "Arabic" else 
+            st.markdown(f'<a href="https://api.whatsapp.com/send?text=جرب%20SmartPulse%20الرائع:%20{share_url}" target="_blank" class="share-btn">واتساب</a>' if st.session_state["language"] == "Arabic" else 
                         f'<a href="https://api.whatsapp.com/send?text=Try%20the%20amazing%20SmartPulse:%20{share_url}" target="_blank" class="share-btn">WhatsApp</a>', unsafe_allow_html=True)
         with col2:
-            st.markdown(f'<a href="https://t.me/share/url?url={share_url}&text=جرب%20SmartPulse%20الآن!" target="_blank" class="share-btn">تليجرام</a>' if language == "Arabic" else 
+            st.markdown(f'<a href="https://t.me/share/url?url={share_url}&text=جرب%20SmartPulse%20الآن!" target="_blank" class="share-btn">تليجرام</a>' if st.session_state["language"] == "Arabic" else 
                         f'<a href="https://t.me/share/url?url={share_url}&text=Try%20SmartPulse%20now!" target="_blank" class="share-btn">Telegram</a>', unsafe_allow_html=True)
         with col3:
-            st.markdown(f'<a href="https://www.facebook.com/sharer/sharer.php?u={share_url}" target="_blank" class="share-btn">مسنجر</a>' if language == "Arabic" else 
+            st.markdown(f'<a href="https://www.facebook.com/sharer/sharer.php?u={share_url}" target="_blank" class="share-btn">مسنجر</a>' if st.session_state["language"] == "Arabic" else 
                         f'<a href="https://www.facebook.com/sharer/sharer.php?u={share_url}" target="_blank" class="share-btn">Messenger</a>', unsafe_allow_html=True)
         with col4:
-            st.markdown(f'<a href="https://discord.com/channels/@me?message=جرب%20SmartPulse:%20{share_url}" target="_blank" class="share-btn">ديسكورد</a>' if language == "Arabic" else 
+            st.markdown(f'<a href="https://discord.com/channels/@me?message=جرب%20SmartPulse:%20{share_url}" target="_blank" class="share-btn">ديسكورد</a>' if st.session_state["language"] == "Arabic" else 
                         f'<a href="https://discord.com/channels/@me?message=Try%20SmartPulse:%20{share_url}" target="_blank" class="share-btn">Discord</a>', unsafe_allow_html=True)
         
-        st.markdown(f"انضم إلى مجتمعنا على تليجرام للدعم أو النقاش: [اضغط هنا]({telegram_group})" if language == "Arabic" else 
+        st.markdown(f"انضم إلى مجتمعنا على تليجرام للدعم أو النقاش: [اضغط هنا]({telegram_group})" if st.session_state["language"] == "Arabic" else 
                     f"Join our Telegram community for support or discussion: [Click here]({telegram_group})")
         
-        if plan == "رؤى مميزة ($10)" if language == "Arabic" else "Premium Insights ($10)":
+        if plan == "رؤى مميزة ($10)" if st.session_state["language"] == "Arabic" else "Premium Insights ($10)":
             if not st.session_state["payment_verified"]:
                 access_token = get_paypal_access_token()
                 if access_token:
                     approval_url = create_payment(access_token)
                     if approval_url:
-                        st.markdown(f"يرجى إتمام الدفع عبر PayPal لفتح الرؤى الكاملة: [اضغط هنا]({approval_url})" if language == "Arabic" else 
+                        st.markdown(f"يرجى إتمام الدفع عبر PayPal لفتح الرؤى الكاملة: [اضغط هنا]({approval_url})" if st.session_state["language"] == "Arabic" else 
                                     f"Please complete payment via PayPal to unlock full insights: [Click here]({approval_url})")
-                        st.info("بعد الدفع الناجح، أعد تحميل الصفحة للاستمتاع بالرؤى المميزة." if language == "Arabic" else 
+                        st.info("بعد الدفع الناجح، أعد تحميل الصفحة للاستمتاع بالرؤى المميزة." if st.session_state["language"] == "Arabic" else 
                                 "After successful payment, reload the page to enjoy premium insights.")
             else:
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
-                st.image(forecast_chart, caption="توقعات 30 يومًا" if language == "Arabic" else "30-Day Forecast")
+                st.image(forecast_chart, caption="توقعات 30 يومًا" if st.session_state["language"] == "Arabic" else "30-Day Forecast")
                 st.write(reco)
                 pdf_data = generate_report(keyword, language, countries, trends, sub_keywords, sentiment, sentiment_by_day, sentiment_by_country, speakers, total_posts, pie_chart, forecast_chart)
                 st.download_button(
-                    label="تحميل التقرير الكامل (PDF)" if language == "Arabic" else "Download Full Report (PDF)",
+                    label="تحميل التقرير الكامل (PDF)" if st.session_state["language"] == "Arabic" else "Download Full Report (PDF)",
                     data=pdf_data,
                     file_name=f"{keyword}_smartpulse_report.pdf",
                     mime="application/pdf"
                 )
-                st.markdown(f"احصل على تقرير مجاني! ادعُ 5 أصدقاء عبر واتساب، تليجرام، مسنجر، أو ديسكورد: [شارك الآن]({share_url})" if language == "Arabic" else 
+                st.markdown(f"احصل على تقرير مجاني! ادعُ 5 أصدقاء عبر واتساب، تليجرام، مسنجر، أو ديسكورد: [شارك الآن]({share_url})" if st.session_state["language"] == "Arabic" else 
                             f"Earn a FREE report! Invite 5 friends via WhatsApp, Telegram, Messenger, or Discord: [Share Now]({share_url})")
-                st.markdown(f"انضم إلى مجموعتنا على تليجرام: [اضغط هنا]({telegram_group})" if language == "Arabic" else 
+                st.markdown(f"انضم إلى مجموعتنا على تليجرام: [اضغط هنا]({telegram_group})" if st.session_state["language"] == "Arabic" else 
                             f"Join our Telegram community: [Click here]({telegram_group})")
         else:
-            st.info("ترقية إلى النسخة المميزة ($10) للحصول على توقعات 30 يومًا ورؤى متكاملة!" if language == "Arabic" else 
+            st.info("ترقية إلى النسخة المميزة ($10) للحصول على توقعات 30 يومًا ورؤى متكاملة!" if st.session_state["language"] == "Arabic" else 
                     "Upgrade to Premium ($10) for 30-day forecasts and comprehensive insights!")
 
 # التحقق من الدفع
 query_params = st.query_params
 if "success" in query_params and query_params["success"] == "true":
     st.session_state["payment_verified"] = True
-    st.success("تم الدفع بنجاح! استمتع برؤاك المميزة الآن." if language == "Arabic" else "Payment successful! Enjoy your premium insights now.")
+    st.success("تم الدفع بنجاح! استمتع برؤاك المميزة الآن." if st.session_state["language"] == "Arabic" else "Payment successful! Enjoy your premium insights now.")
 elif "cancel" in query_params:
-    st.warning("تم إلغاء الدفع. اختر النسخة المميزة مرة أخرى للمحاولة." if language == "Arabic" else "Payment canceled. Retry Premium for full access.")
-
-# إضافة تعليقات تفاعلية في الأسفل
-st.markdown("---")
-st.markdown("هل لديك أسئلة أو اقتراحات؟ تواصل معنا عبر تليجرام أو رقم الواتساب!" if language == "Arabic" else 
-            "Have questions or suggestions? Reach out via Telegram or WhatsApp!")
+    st.warning("تم إلغاء الدفع. اختر النسخة المميزة مرة أخرى للمحاولة." if st.session_state["language"] == "Arabic" else "Payment canceled. Retry Premium for full access.")
