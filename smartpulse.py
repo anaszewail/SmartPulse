@@ -12,6 +12,7 @@ import io
 import requests
 import json
 from prophet import Prophet
+import uuid
 
 # إعداد الخط (للتوافق مع العربية إذا لزم الأمر)
 if not os.path.exists("/tmp/Amiri-Regular.ttf"):
@@ -41,6 +42,8 @@ if "payment_initiated" not in st.session_state:
     st.session_state["payment_initiated"] = False
 if "report_generated" not in st.session_state:
     st.session_state["report_generated"] = False
+if "payment_key" not in st.session_state:
+    st.session_state["payment_key"] = str(uuid.uuid4())  # مفتاح فريد لكل عملية دفع
 
 # العنوان والوصف بالإنجليزية
 st.title("SmartPulse - Global Insights Leader")
@@ -185,7 +188,6 @@ def create_payment(access_token):
 # تشغيل الأداة تلقائيًا
 if st.button("Generate Insights"):
     with st.spinner("Processing your request..."):
-        # توليد الرسم الدائري تلقائيًا
         pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
         st.image(pie_chart, caption="Sentiment Overview")
         
@@ -206,23 +208,21 @@ if st.button("Generate Insights"):
         
         st.markdown(f"Join our Telegram community for support or discussion: [Click here]({telegram_group})")
         
-        # معالجة الدفع تلقائيًا في نفس الصفحة مع فتح النافذة
+        # معالجة الدفع تلقائيًا لـ Premium Insights
         if plan == "Premium Insights ($10)":
-            if not st.session_state["payment_verified"]:
-                if not st.session_state["payment_initiated"]:
-                    access_token = get_paypal_access_token()
-                    if access_token:
-                        approval_url = create_payment(access_token)
-                        if approval_url:
-                            # فتح نافذة الدفع تلقائيًا باستخدام JavaScript
-                            st.markdown(f"""
-                                <script>
-                                    window.open('{approval_url}', '_blank');
-                                </script>
-                            """, unsafe_allow_html=True)
-                            st.session_state["payment_initiated"] = True
-                            st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly on this page.")
-            else:
+            if not st.session_state["payment_verified"] and not st.session_state["payment_initiated"]:
+                access_token = get_paypal_access_token()
+                if access_token:
+                    approval_url = create_payment(access_token)
+                    if approval_url:
+                        # زر مخفي يتم تنشيطه تلقائيًا لفتح نافذة الدفع
+                        st.markdown(f"""
+                            <button id="paypal-btn" style="display:none;" onclick="window.open('{approval_url}', '_blank')">Open PayPal</button>
+                            <script>document.getElementById('paypal-btn').click();</script>
+                        """, unsafe_allow_html=True)
+                        st.session_state["payment_initiated"] = True
+                        st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly!")
+            elif st.session_state["payment_verified"]:
                 # توليد التقرير تلقائيًا بعد الدفع
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
                 st.image(forecast_chart, caption="30-Day Forecast")
@@ -244,6 +244,7 @@ if st.button("Generate Insights"):
 query_params = st.query_params
 if "success" in query_params and query_params["success"] == "true" and not st.session_state["payment_verified"]:
     st.session_state["payment_verified"] = True
+    st.session_state["payment_initiated"] = False  # إعادة تعيين للسماح بطلب دفع جديد إذا لزم الأمر
     st.success("Payment successful! Your premium insights are now unlocked.")
 elif "cancel" in query_params:
     st.session_state["payment_initiated"] = False
