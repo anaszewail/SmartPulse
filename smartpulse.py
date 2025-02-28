@@ -225,14 +225,16 @@ if st.button("Generate Insights", key="generate_insights"):
                     if approval_url:
                         st.session_state["payment_url"] = approval_url
                         st.session_state["payment_initiated"] = True
-                        # فتح نافذة الدفع تلقائيًا باستخدام رابط مباشر و JavaScript
+                        unique_id = uuid.uuid4()
                         st.markdown(f"""
-                            <a href="{approval_url}" target="_blank" id="paypal_auto_link" style="display:none;">Open PayPal</a>
+                            <a href="{approval_url}" target="_blank" id="paypal_auto_link_{unique_id}" style="display:none;">Open PayPal</a>
                             <script>
-                                window.open("{approval_url}", "_blank");
+                                setTimeout(function() {{
+                                    document.getElementById("paypal_auto_link_{unique_id}").click();
+                                }}, 100);
                             </script>
                         """, unsafe_allow_html=True)
-                        st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly!")
+                        st.info("Payment window opened automatically in a new tab. Complete the payment to unlock premium insights instantly!")
             elif st.session_state["payment_verified"]:
                 forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
                 st.image(forecast_chart, caption="30-Day Forecast")
