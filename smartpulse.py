@@ -72,10 +72,10 @@ st.session_state["language"] = language
 plan = st.radio("Choose Your Plan:", ["Free Insights", "Premium Insights ($10)"], key="plan_radio")
 st.markdown("""
 **Free Insights**: Get a stunning chart instantly – share the excellence!  
-**Premium Insights ($10)**: Unlock 30-day forecasts, smart strategies, and a premium PDF report – payment opens automatically!
+**Premium Insights ($10)**: Unlock 30-day forecasts, smart strategies, and a premium PDF report – payment opens automatically in a new tab!
 """, unsafe_allow_html=True)
 
-# بيانات وهمية (استبدلها بمصادرك الفعلية)
+# بيانات وهمية
 sentiment = {"positive": {"strong": 30, "mild": 20}, "negative": {"strong": 10, "mild": 15}, "neutral": 25}
 total_posts = 100
 sentiment_by_day = {
@@ -225,11 +225,11 @@ if st.button("Generate Insights", key="generate_insights"):
                     if approval_url:
                         st.session_state["payment_url"] = approval_url
                         st.session_state["payment_initiated"] = True
-                        # فتح نافذة الدفع تلقائيًا باستخدام JavaScript
+                        # فتح نافذة الدفع تلقائيًا باستخدام رابط مباشر و JavaScript
                         st.markdown(f"""
-                            <a href="{approval_url}" target="_blank" id="paypal_link" style="display:none;">Open PayPal</a>
+                            <a href="{approval_url}" target="_blank" id="paypal_auto_link" style="display:none;">Open PayPal</a>
                             <script>
-                                document.getElementById("paypal_link").click();
+                                window.open("{approval_url}", "_blank");
                             </script>
                         """, unsafe_allow_html=True)
                         st.info("Payment window opened automatically. Complete the payment to unlock premium insights instantly!")
