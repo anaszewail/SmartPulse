@@ -8,7 +8,6 @@ from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import pandas as pd
-import os
 import io
 import requests
 import json
@@ -76,13 +75,13 @@ st.markdown("""
         background: rgba(255,255,255,0.1);
         border: 2px solid #FFD700;
         border-radius: 15px;
-        color: #FF0000;  /* لون أحمر لـ iPhone 15 */
-        font-weight: bold;  /* خط عريض */
+        color: #FF0000;
+        font-weight: bold;
         padding: 15px;
         font-size: 18px;
         box-shadow: 0 5px 20px rgba(255,215,0,0.2);
         transition: all 0.3s ease;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5);  /* ظل خفيف للنص */
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
     
     .stTextInput>div>div>input:focus {
@@ -209,6 +208,10 @@ if "report_generated" not in st.session_state:
     st.session_state["report_generated"] = False
 if "payment_url" not in st.session_state:
     st.session_state["payment_url"] = None
+if "pie_chart_buffer" not in st.session_state:
+    st.session_state["pie_chart_buffer"] = None
+if "forecast_chart_buffer" not in st.session_state:
+    st.session_state["forecast_chart_buffer"] = None
 
 # زر كبير في الأعلى
 if st.session_state["payment_url"]:
@@ -228,14 +231,9 @@ st.markdown("""
 # واجهة المستخدم المحسنة
 st.markdown("<h2 style='text-align: center; animation: fadeInUp 1s forwards; animation-delay: 0.4s;'>Master Your Data in Seconds</h2>", unsafe_allow_html=True)
 try:
-    # حقل الإدخال مع قيمة افتراضية واضحة (أحمر وعريض)
     keyword = st.text_input("Enter Your Topic (e.g., iPhone 15):", value="iPhone 15", key="keyword_input", help="Unlock insights for any topic instantly!")
-    
-    # قائمة اللغة مع خيارات واضحة
     language = st.selectbox("Select Language:", options=["English", "Arabic"], index=0, key="language_select")
     st.session_state["language"] = language
-    
-    # خيارات الخطة
     plan = st.radio("Choose Your Plan:", ["Free Insights", "Premium Insights ($10)"], key="plan_radio")
     st.markdown("""
         <p style='text-align: center; animation: fadeInUp 1s forwards; animation-delay: 0.6s;'>
@@ -320,7 +318,6 @@ def generate_pie_chart(keyword, language, sentiment, total_posts):
         plt.gca().set_facecolor('#0D1B2A')
         plt.gcf().set_facecolor('#0D1B2A')
         
-        # حفظ الصورة في الذاكرة بدلاً من القرص
         img_buffer = io.BytesIO()
         plt.savefig(img_buffer, format='png', dpi=300, bbox_inches="tight")
         img_buffer.seek(0)
@@ -351,7 +348,6 @@ def generate_forecast(keyword, language, sentiment_by_day):
         plt.xticks(color="white", fontsize=12)
         plt.yticks(color="white", fontsize=12)
         
-        # حفظ الصورة في الذاكرة بدلاً من القرص
         img_buffer = io.BytesIO()
         plt.savefig(img_buffer, format='png', dpi=300, bbox_inches="tight")
         img_buffer.seek(0)
@@ -371,22 +367,15 @@ def generate_report(keyword, language, countries, trends, sub_keywords, sentimen
         style = styles["Normal"]
         style.fontSize = 12
         style.textColor = colors.black
-        
-        # استخدام خط مدمج مع Streamlit كخيار احتياطي
-        style.fontName = "Helvetica"  # خط افتراضي مدمج
-        font_path = os.path.join(os.path.dirname(__file__), "fonts", "Amiri-Regular.ttf")
-        if os.path.exists(font_path):
-            pdfmetrics.registerFont(TTFont("Amiri", font_path))
-            style.fontName = "Amiri" if language == "Arabic" else "Helvetica"
-        
-        # معالجة النصوص العربية باستخدام arabic_reshaper و python-bidi
+        style.fontName = "Helvetica"  # خط مدمج مع Streamlit ومتوافق
+
         report = f"SmartPulse Analysis Report for {keyword}\n"
         report += "=" * 50 + "\n"
         report += f"Total Sources: {total_posts}\n"
         if language == "Arabic":
             report = arabic_reshaper.reshape(report)
-            report = get_display(report)  # ترتيب النصوص من اليمين إلى اليسار
-        
+            report = get_display(report)
+
         content = [Paragraph(report, style)]
         content.append(Image(pie_chart_buffer, width=400, height=300))
         content.append(Image(forecast_chart_buffer, width=400, height=300))
@@ -404,6 +393,7 @@ try:
         with st.spinner("Processing Your Insights..."):
             pie_chart_buffer = generate_pie_chart(keyword, language, sentiment, total_posts)
             if pie_chart_buffer:
+                st.session_state["pie_chart_buffer"] = pie_chart_buffer.getvalue()  # تخزين البيانات في الحالة
                 st.image(pie_chart_buffer, caption="Sentiment Overview")
                 
                 share_url = "https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/"
@@ -443,8 +433,13 @@ try:
                     elif st.session_state["payment_verified"]:
                         forecast_chart_buffer, reco = generate_forecast(keyword, language, sentiment_by_day)
                         if forecast_chart_buffer and reco:
+                            st.session_state["forecast_chart_buffer"] = forecast_chart_buffer.getvalue()  # تخزين البيانات في الحالة
                             st.image(forecast_chart_buffer, caption="30-Day Forecast")
                             st.write(reco)
+                            
+                            # إنشاء التقرير مباشرة باستخدام البيانات المخزنة
+                            pie_chart_buffer = io.BytesIO(st.session_state["pie_chart_buffer"])
+                            forecast_chart_buffer = io.BytesIO(st.session_state["forecast_chart_buffer"])
                             pdf_data = generate_report(keyword, language, countries, trends, sub_keywords, sentiment, sentiment_by_day, sentiment_by_country, speakers, total_posts, pie_chart_buffer, forecast_chart_buffer)
                             if pdf_data:
                                 st.download_button(
