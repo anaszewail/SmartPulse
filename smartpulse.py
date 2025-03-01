@@ -17,13 +17,6 @@ import uuid
 import arabic_reshaper
 from bidi.algorithm import get_display
 
-# إعداد الخط العربي
-if not os.path.exists("/tmp/Amiri-Regular.ttf"):
-    try:
-        os.system("wget https://github.com/alef.type/amiri/raw/master/Amiri-Regular.ttf -O /tmp/Amiri-Regular.ttf")
-    except Exception as e:
-        st.error(f"Failed to download font: {e}")
-
 # إعداد الصفحة بتصميم فاخر
 st.set_page_config(
     page_title="SmartPulse™ - Elite Data Intelligence",
@@ -372,12 +365,15 @@ def generate_report(keyword, language, countries, trends, sub_keywords, sentimen
         style = styles["Normal"]
         style.fontSize = 12
         style.textColor = colors.black
-        try:
-            pdfmetrics.registerFont(TTFont("Amiri", "/tmp/Amiri-Regular.ttf"))
+        
+        # استخدام الخط المحلي من مجلد fonts
+        font_path = os.path.join(os.path.dirname(__file__), "fonts", "Amiri-Regular.ttf")
+        if os.path.exists(font_path):
+            pdfmetrics.registerFont(TTFont("Amiri", font_path))
             style.fontName = "Helvetica" if language == "English" else "Amiri"
-        except Exception as e:
+        else:
             style.fontName = "Helvetica"
-            st.warning(f"Font loading failed: {e}. Using Helvetica.")
+            st.warning("Amiri font not found in /fonts. Using Helvetica.")
         
         # معالجة النصوص العربية باستخدام arabic_reshaper و python-bidi
         report = f"SmartPulse Analysis Report for {keyword}\n"
