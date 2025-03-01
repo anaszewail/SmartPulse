@@ -102,7 +102,7 @@ st.markdown("""
         margin-bottom: 10px;
     }
     
-    .stSelectbox>div>div>div {
+    .stSelectbox>div>div>button {
         background: rgba(255,255,255,0.1);
         border: 2px solid #FFD700;
         border-radius: 15px;
@@ -231,9 +231,14 @@ st.markdown("""
 # واجهة المستخدم المحسنة
 st.markdown("<h2 style='text-align: center; animation: fadeInUp 1s forwards; animation-delay: 0.4s;'>Master Your Data in Seconds</h2>", unsafe_allow_html=True)
 try:
-    keyword = st.text_input("Enter Your Topic (e.g., iPhone 15):", "iPhone 15", key="keyword_input", help="Unlock insights for any topic instantly!")
-    language = st.selectbox("Select Language:", ["English", "Arabic"], index=0, key="language_select")
+    # حقل الإدخال مع قيمة افتراضية واضحة
+    keyword = st.text_input("Enter Your Topic (e.g., iPhone 15):", value="iPhone 15", key="keyword_input", help="Unlock insights for any topic instantly!")
+    
+    # قائمة اللغة مع خيارات واضحة
+    language = st.selectbox("Select Language:", options=["English", "Arabic"], index=0, key="language_select")
     st.session_state["language"] = language
+    
+    # خيارات الخطة
     plan = st.radio("Choose Your Plan:", ["Free Insights", "Premium Insights ($10)"], key="plan_radio")
     st.markdown("""
         <p style='text-align: center; animation: fadeInUp 1s forwards; animation-delay: 0.6s;'>
