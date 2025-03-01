@@ -31,7 +31,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS محسّن لتناسق النصوص مع الخلفية وسلاسة الأداء
+# CSS محسّن لتناسق النصوص مع الخلفية وجعل iPhone 15 أحمر وعريض
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap');
@@ -82,7 +82,8 @@ st.markdown("""
         background: rgba(255,255,255,0.1);
         border: 2px solid #FFD700;
         border-radius: 15px;
-        color: #F8FAFC;  /* لون أكثر وضوحًا */
+        color: #FF0000;  /* لون أحمر لـ iPhone 15 */
+        font-weight: bold;  /* خط عريض */
         padding: 15px;
         font-size: 18px;
         box-shadow: 0 5px 20px rgba(255,215,0,0.2);
@@ -233,7 +234,7 @@ st.markdown("""
 # واجهة المستخدم المحسنة
 st.markdown("<h2 style='text-align: center; animation: fadeInUp 1s forwards; animation-delay: 0.4s;'>Master Your Data in Seconds</h2>", unsafe_allow_html=True)
 try:
-    # حقل الإدخال مع قيمة افتراضية واضحة
+    # حقل الإدخال مع قيمة افتراضية واضحة (أحمر وعريض)
     keyword = st.text_input("Enter Your Topic (e.g., iPhone 15):", value="iPhone 15", key="keyword_input", help="Unlock insights for any topic instantly!")
     
     # قائمة اللغة مع خيارات واضحة
