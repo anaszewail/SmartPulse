@@ -305,7 +305,7 @@ sentiment_by_day = {
 sentiment_by_country = {"Egypt": {"positive": {"strong": 20, "mild": 10}, "negative": {"strong": 5, "mild": 5}, "neutral": 10}}
 countries, trends, sub_keywords, speakers = ["Egypt"], [("tech", 50)], [("phone", 30)], 80
 
-# دوال التحليل مع معالجة الأخطاء
+# دوال التحليل مع معالجة الصور في الذاكرة
 def generate_pie_chart(keyword, language, sentiment, total_posts):
     try:
         labels = ["Strong Positive", "Mild Positive", "Strong Negative", "Mild Negative", "Neutral"] if language == "English" else ["إيجابي قوي", "إيجابي خفيف", "سلبي قوي", "سلبي خفيف", "محايد"]
@@ -319,10 +319,13 @@ def generate_pie_chart(keyword, language, sentiment, total_posts):
         plt.title(f"{keyword} Sentiment Analysis", fontsize=18, color="white", pad=20)
         plt.gca().set_facecolor('#0D1B2A')
         plt.gcf().set_facecolor('#0D1B2A')
-        pie_file = f"pie_{keyword}.png"
-        plt.savefig(pie_file, dpi=300, bbox_inches="tight")
+        
+        # حفظ الصورة في الذاكرة بدلاً من القرص
+        img_buffer = io.BytesIO()
+        plt.savefig(img_buffer, format='png', dpi=300, bbox_inches="tight")
+        img_buffer.seek(0)
         plt.close()
-        return pie_file
+        return img_buffer
     except Exception as e:
         st.error(f"Failed to generate pie chart: {e}")
         return None
@@ -347,17 +350,20 @@ def generate_forecast(keyword, language, sentiment_by_day):
         plt.gcf().set_facecolor('#0D1B2A')
         plt.xticks(color="white", fontsize=12)
         plt.yticks(color="white", fontsize=12)
-        forecast_file = f"forecast_{keyword}.png"
-        plt.savefig(forecast_file, dpi=300, bbox_inches="tight")
+        
+        # حفظ الصورة في الذاكرة بدلاً من القرص
+        img_buffer = io.BytesIO()
+        plt.savefig(img_buffer, format='png', dpi=300, bbox_inches="tight")
+        img_buffer.seek(0)
         plt.close()
         trend = "Upward" if forecast['yhat'].iloc[-1] > forecast['yhat'].iloc[-31] else "Downward"
         reco = f"Trend: {trend}. Increase investment if upward or adjust strategy if downward."
-        return forecast_file, reco
+        return img_buffer, reco
     except Exception as e:
         st.error(f"Failed to generate forecast: {e}")
         return None, None
 
-def generate_report(keyword, language, countries, trends, sub_keywords, sentiment, sentiment_by_day, sentiment_by_country, speakers, total_posts, pie_chart, forecast_chart):
+def generate_report(keyword, language, countries, trends, sub_keywords, sentiment, sentiment_by_day, sentiment_by_country, speakers, total_posts, pie_chart_buffer, forecast_chart_buffer):
     try:
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
@@ -366,14 +372,12 @@ def generate_report(keyword, language, countries, trends, sub_keywords, sentimen
         style.fontSize = 12
         style.textColor = colors.black
         
-        # استخدام الخط المحلي من مجلد fonts
+        # استخدام خط مدمج مع Streamlit كخيار احتياطي
+        style.fontName = "Helvetica"  # خط افتراضي مدمج
         font_path = os.path.join(os.path.dirname(__file__), "fonts", "Amiri-Regular.ttf")
         if os.path.exists(font_path):
             pdfmetrics.registerFont(TTFont("Amiri", font_path))
-            style.fontName = "Helvetica" if language == "English" else "Amiri"
-        else:
-            style.fontName = "Helvetica"
-            st.warning("Amiri font not found in /fonts. Using Helvetica.")
+            style.fontName = "Amiri" if language == "Arabic" else "Helvetica"
         
         # معالجة النصوص العربية باستخدام arabic_reshaper و python-bidi
         report = f"SmartPulse Analysis Report for {keyword}\n"
@@ -384,8 +388,8 @@ def generate_report(keyword, language, countries, trends, sub_keywords, sentimen
             report = get_display(report)  # ترتيب النصوص من اليمين إلى اليسار
         
         content = [Paragraph(report, style)]
-        content.append(Image(pie_chart, width=400, height=300))
-        content.append(Image(forecast_chart, width=400, height=300))
+        content.append(Image(pie_chart_buffer, width=400, height=300))
+        content.append(Image(forecast_chart_buffer, width=400, height=300))
         content.append(Spacer(1, 20))
         doc.build(content)
         buffer.seek(0)
@@ -398,9 +402,9 @@ def generate_report(keyword, language, countries, trends, sub_keywords, sentimen
 try:
     if st.button("Unlock Insights Now!", key="generate_insights"):
         with st.spinner("Processing Your Insights..."):
-            pie_chart = generate_pie_chart(keyword, language, sentiment, total_posts)
-            if pie_chart:
-                st.image(pie_chart, caption="Sentiment Overview")
+            pie_chart_buffer = generate_pie_chart(keyword, language, sentiment, total_posts)
+            if pie_chart_buffer:
+                st.image(pie_chart_buffer, caption="Sentiment Overview")
                 
                 share_url = "https://smartpulse-nwrkb9xdsnebmnhczyt76s.streamlit.app/"
                 telegram_group = "https://t.me/+K7W_PUVdbGk4MDRk"
@@ -437,11 +441,11 @@ try:
                                 """, unsafe_allow_html=True)
                                 st.info("Payment window opened automatically. Complete it to unlock premium insights!")
                     elif st.session_state["payment_verified"]:
-                        forecast_chart, reco = generate_forecast(keyword, language, sentiment_by_day)
-                        if forecast_chart and reco:
-                            st.image(forecast_chart, caption="30-Day Forecast")
+                        forecast_chart_buffer, reco = generate_forecast(keyword, language, sentiment_by_day)
+                        if forecast_chart_buffer and reco:
+                            st.image(forecast_chart_buffer, caption="30-Day Forecast")
                             st.write(reco)
-                            pdf_data = generate_report(keyword, language, countries, trends, sub_keywords, sentiment, sentiment_by_day, sentiment_by_country, speakers, total_posts, pie_chart, forecast_chart)
+                            pdf_data = generate_report(keyword, language, countries, trends, sub_keywords, sentiment, sentiment_by_day, sentiment_by_country, speakers, total_posts, pie_chart_buffer, forecast_chart_buffer)
                             if pdf_data:
                                 st.download_button(
                                     label="Download Full Report (PDF)",
