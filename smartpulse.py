@@ -82,11 +82,12 @@ st.markdown("""
         background: rgba(255,255,255,0.1);
         border: 2px solid #FFD700;
         border-radius: 15px;
-        color: #FFFFFF;
+        color: #F8FAFC;  /* لون أكثر وضوحًا */
         padding: 15px;
         font-size: 18px;
         box-shadow: 0 5px 20px rgba(255,215,0,0.2);
         transition: all 0.3s ease;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);  /* ظل خفيف للنص */
     }
     
     .stTextInput>div>div>input:focus {
@@ -106,10 +107,11 @@ st.markdown("""
         background: rgba(255,255,255,0.1);
         border: 2px solid #FFD700;
         border-radius: 15px;
-        color: #FFFFFF;
+        color: #F8FAFC;
         padding: 15px;
         font-size: 18px;
         box-shadow: 0 5px 20px rgba(255,215,0,0.2);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
     
     .stRadio>div {
