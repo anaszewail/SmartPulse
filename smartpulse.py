@@ -14,7 +14,8 @@ import requests
 import json
 from prophet import Prophet
 import uuid
-import arabic_reshaper  
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 # إعداد الخط العربي
 if not os.path.exists("/tmp/Amiri-Regular.ttf"):
@@ -378,10 +379,15 @@ def generate_report(keyword, language, countries, trends, sub_keywords, sentimen
             style.fontName = "Helvetica"
             st.warning(f"Font loading failed: {e}. Using Helvetica.")
         
+        # معالجة النصوص العربية باستخدام arabic_reshaper و python-bidi
         report = f"SmartPulse Analysis Report for {keyword}\n"
         report += "=" * 50 + "\n"
         report += f"Total Sources: {total_posts}\n"
-        content = [Paragraph(report if language == "English" else arabic_reshaper.reshape(report), style)]
+        if language == "Arabic":
+            report = arabic_reshaper.reshape(report)
+            report = get_display(report)  # ترتيب النصوص من اليمين إلى اليسار
+        
+        content = [Paragraph(report, style)]
         content.append(Image(pie_chart, width=400, height=300))
         content.append(Image(forecast_chart, width=400, height=300))
         content.append(Spacer(1, 20))
