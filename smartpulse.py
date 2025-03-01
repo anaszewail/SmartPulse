@@ -14,8 +14,7 @@ import requests
 import json
 from prophet import Prophet
 import uuid
-import time
-from datetime import datetime, timedelta
+import arabic_reshaper  
 
 # إعداد الخط العربي
 if not os.path.exists("/tmp/Amiri-Regular.ttf"):
@@ -24,7 +23,7 @@ if not os.path.exists("/tmp/Amiri-Regular.ttf"):
     except Exception as e:
         st.error(f"Failed to download font: {e}")
 
-# إعداد الصفحة بتصميم فاخر وعالمي
+# إعداد الصفحة بتصميم فاخر
 st.set_page_config(
     page_title="SmartPulse™ - Elite Data Intelligence",
     page_icon="✨",
