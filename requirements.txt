@@ -1,7 +1,8 @@
 streamlit
 matplotlib
+numpy
 reportlab
-prophet
 pandas
-arabic-reshaper
-python-bidi
+requests
+prophet
+arabic_reshaper
