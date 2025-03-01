@@ -6,3 +6,4 @@ pandas
 requests
 prophet
 arabic_reshaper
+python-bidi
