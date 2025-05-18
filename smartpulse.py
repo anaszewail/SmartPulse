@@ -164,7 +164,7 @@ st.markdown("""
     <h1 style='font-size: 60px; text-align: center; animation: fadeInUp 1s forwards;'>SmartPulse™</h1>
     <p style='font-size: 24px; text-align: center; animation: fadeInUp 1s forwards; animation-delay: 0.2s;'>
         Discover Insights That Drive Success – Instantly!<br>
-        <em>By Anas Hani Zewail • Contact: +201024743503</em>
+        <em>nice to meet you</em>
     </p>
 """, unsafe_allow_html=True)
 
